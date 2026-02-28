@@ -31,6 +31,13 @@ const selectSuggestion = (name: string) => {
   showSuggestions.value = false
 }
 
+const handleBlur = () => {
+  // Delay to allow click event on suggestion item to fire first
+  setTimeout(() => {
+    showSuggestions.value = false
+  }, 200)
+}
+
 onMounted(() => {
   store.fetchMedicines()
 })
@@ -98,7 +105,7 @@ const handleAddMedicine = async () => {
               type="text" 
               v-model="searchQuery" 
               @focus="showSuggestions = true"
-              @blur="setTimeout(() => showSuggestions = false, 200)"
+              @blur="handleBlur"
               placeholder="약품 이름을 입력하세요..." 
               class="search-input"
             />
