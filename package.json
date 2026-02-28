@@ -14,10 +14,10 @@
   "description": "",
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",
-    "typescript": "^5.9.3",
+    "typescript": "^5.7.3",
     "vite": "^7.3.1",
     "vue": "^3.5.29",
-    "vue-tsc": "^3.2.5"
+    "vue-tsc": "^2.2.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
