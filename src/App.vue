@@ -8,6 +8,8 @@ const store = useMedicineStore()
 const searchQuery = ref('')
 const isAdmin = ref(false)
 const showAddModal = ref(false)
+const showLoginModal = ref(false)
+const adminPassword = ref('')
 
 const newMedicine = ref({
   name: '',
@@ -50,7 +52,22 @@ const filteredMedicines = computed(() => {
 })
 
 const toggleAdmin = () => {
-  isAdmin.value = !isAdmin.value
+  if (isAdmin.value) {
+    isAdmin.value = false
+  } else {
+    showLoginModal.value = true
+    adminPassword.value = ''
+  }
+}
+
+const handleLogin = () => {
+  if (adminPassword.value === '1234') {
+    isAdmin.value = true
+    showLoginModal.value = false
+    adminPassword.value = ''
+  } else {
+    alert('비밀번호가 올바르지 않습니다.')
+  }
 }
 
 const handleAddMedicine = async () => {
@@ -402,11 +419,13 @@ const handleAddMedicine = async () => {
   font-size: 0.9rem;
 }
 
-.add-section {
+.add-section, .login-modal {
   padding: 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .form-group {
