@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { Search, MapPin, Plus, LogIn, Database, LogOut, PackagePlus } from 'lucide-vue-next'
 import { useMedicineStore } from './store/medicine'
+import mapImageUrl from './assets/map.jpeg'
 
 const store = useMedicineStore()
 const searchQuery = ref('')
@@ -68,6 +69,9 @@ const handleAddMedicine = async () => {
 
     <main class="content">
       <section v-if="!showAddModal" class="hero">
+        <div class="map-container glass">
+          <img :src="mapImageUrl" alt="Pharmacy Map" class="pharmacy-map" />
+        </div>
         <h1>어떤 약을 찾으시나요?</h1>
         <p>메디킹덤 용산점의 모든 약품 위치를 한 번에 확인하세요.</p>
         
@@ -190,6 +194,22 @@ const handleAddMedicine = async () => {
 .hero {
   text-align: center;
   margin-bottom: 40px;
+}
+
+.map-container {
+  margin-bottom: 30px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.pharmacy-map {
+  max-width: 100%;
+  height: auto;
+  border-radius: calc(var(--radius) - 4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .hero h1 {
