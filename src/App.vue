@@ -108,7 +108,26 @@ const handleAddMedicine = async () => {
     </header>
 
     <main class="content">
-      <section v-if="!showAddModal" class="hero">
+      <!-- Login Modal -->
+      <section v-if="showLoginModal" class="login-modal glass">
+        <h2>관리자 로그인</h2>
+        <div class="form-group">
+          <label>비밀번호</label>
+          <input 
+            v-model="adminPassword" 
+            type="password" 
+            class="input-field" 
+            placeholder="비밀번호 4자리를 입력하세요"
+            @keyup.enter="handleLogin"
+          >
+        </div>
+        <div class="form-actions">
+          <button @click="showLoginModal = false" class="btn-secondary">취소</button>
+          <button @click="handleLogin" class="btn-primary">로그인</button>
+        </div>
+      </section>
+
+      <section v-if="!showAddModal && !showLoginModal" class="hero">
         <div class="map-container glass">
           <img :src="mapImageUrl" alt="Pharmacy Map" class="pharmacy-map" />
         </div>
