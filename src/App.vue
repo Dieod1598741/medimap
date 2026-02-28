@@ -10,6 +10,7 @@ const isAdmin = ref(false)
 const showAddModal = ref(false)
 const showLoginModal = ref(false)
 const adminPassword = ref('')
+const isMapZoomed = ref(false)
 
 const newMedicine = ref({
   name: '',
@@ -70,6 +71,10 @@ const handleLogin = () => {
   }
 }
 
+const toggleMapZoom = () => {
+  isMapZoomed.value = !isMapZoomed.value
+}
+
 const handleAddMedicine = async () => {
   if (!newMedicine.value.name || !newMedicine.value.location) return
   
@@ -128,8 +133,12 @@ const handleAddMedicine = async () => {
       </section>
 
       <section v-if="!showAddModal && !showLoginModal" class="hero">
-        <div class="map-container glass">
+        <div class="map-container glass" @click="toggleMapZoom">
           <img :src="mapImageUrl" alt="Pharmacy Map" class="pharmacy-map" />
+          <div class="map-overlay">
+            <Search :size="24" />
+            <span>크게 보기</span>
+          </div>
         </div>
         <h1>어떤 약을 찾으시나요?</h1>
         <p>메디킹덤 용산점의 모든 약품 위치를 한 번에 확인하세요.</p>
@@ -209,6 +218,18 @@ const handleAddMedicine = async () => {
     <footer class="main-footer">
       <p>&copy; 2026 Medimap Medikingdom Yongsan. All rights reserved.</p>
     </footer>
+
+    <!-- Map Zoom Modal -->
+    <transition name="fade">
+      <div v-if="isMapZoomed" class="map-zoom-overlay" @click="toggleMapZoom">
+        <div class="zoom-content glass" @click.stop>
+          <img :src="mapImageUrl" alt="Enlarged Pharmacy Map" class="zoomed-image" />
+          <button class="close-zoom" @click="toggleMapZoom">
+            <Plus :style="{ transform: 'rotate(45deg)' }" :size="32" />
+          </button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -278,6 +299,28 @@ const handleAddMedicine = async () => {
   justify-content: center;
   align-items: center;
   padding: 10px;
+  position: relative;
+  cursor: pointer;
+}
+
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+
+.map-container:hover .map-overlay {
+  opacity: 1;
 }
 
 .pharmacy-map {
@@ -285,6 +328,52 @@ const handleAddMedicine = async () => {
   height: auto;
   border-radius: calc(var(--radius) - 4px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.map-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.zoom-content {
+  position: relative;
+  max-width: 95vw;
+  max-height: 90vh;
+  padding: 10px;
+  border-radius: var(--radius);
+  overflow: auto;
+}
+
+.zoomed-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: calc(var(--radius) - 4px);
+}
+
+.close-zoom {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  color: var(--text-main);
+  z-index: 100;
 }
 
 .hero h1 {
