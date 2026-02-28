@@ -485,8 +485,57 @@ const handleAddMedicine = async () => {
 }
 
 .loading-state, .empty-state {
-  text-align: center;
-  padding: 40px;
   color: var(--text-muted);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .main-header {
+    padding: 12px 15px;
+    top: 10px;
+  }
+
+  .content {
+    margin-top: 40px;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+    white-space: nowrap;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+    word-break: keep-all;
+  }
+
+  .logo span {
+    font-size: 1rem;
+  }
+
+  .search-wrapper {
+    padding: 8px 15px;
+  }
+
+  .search-input {
+    font-size: 1rem;
+  }
+
+  .med-card {
+    padding: 15px;
+  }
+
+  .med-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .med-location {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
 }
 </style>
