@@ -15,6 +15,22 @@ const newMedicine = ref({
   is_in_stock: true
 })
 
+const showSuggestions = ref(false)
+
+const suggestions = computed(() => {
+  if (!searchQuery.value) return []
+  return store.medicines
+    .filter(m => m.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    .map(m => m.name)
+    .filter((name, index, self) => self.indexOf(name) === index) // Unique names
+    .slice(0, 5) // Limit to 5 suggestions
+})
+
+const selectSuggestion = (name: string) => {
+  searchQuery.value = name
+  showSuggestions.value = false
+}
+
 onMounted(() => {
   store.fetchMedicines()
 })
@@ -75,14 +91,30 @@ const handleAddMedicine = async () => {
         <h1>어떤 약을 찾으시나요?</h1>
         <p>메디킹덤 용산점의 모든 약품 위치를 한 번에 확인하세요.</p>
         
-        <div class="search-wrapper glass">
-          <Search class="search-icon" :size="20" />
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="약품 이름을 입력하세요..." 
-            class="search-input"
-          />
+        <div class="search-container">
+          <div class="search-wrapper glass">
+            <Search class="search-icon" :size="20" />
+            <input 
+              type="text" 
+              v-model="searchQuery" 
+              @focus="showSuggestions = true"
+              @blur="setTimeout(() => showSuggestions = false, 200)"
+              placeholder="약품 이름을 입력하세요..." 
+              class="search-input"
+            />
+          </div>
+          <transition name="fade">
+            <ul v-if="showSuggestions && suggestions.length > 0" class="suggestions-list glass">
+              <li 
+                v-for="suggestion in suggestions" 
+                :key="suggestion" 
+                @click="selectSuggestion(suggestion)"
+                class="suggestion-item"
+              >
+                {{ suggestion }}
+              </li>
+            </ul>
+          </transition>
         </div>
       </section>
 
@@ -224,12 +256,49 @@ const handleAddMedicine = async () => {
   color: var(--text-muted);
 }
 
+.search-container {
+  position: relative;
+  z-index: 50;
+  max-width: 500px;
+  margin: 30px auto 0;
+}
+
 .search-wrapper {
-  margin-top: 30px;
   display: flex;
   align-items: center;
   padding: 10px 20px;
   gap: 15px;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  padding: 8px 0;
+  list-style: none;
+  overflow: hidden;
+}
+
+.suggestion-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: left;
+}
+
+.suggestion-item:hover {
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--primary);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 .search-icon {
