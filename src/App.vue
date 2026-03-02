@@ -15,6 +15,10 @@ const isMapZoomed = ref(false)
 const newMedicine = ref({
   name: '',
   location: '',
+  stock_quantity: 0,
+  expiry_date: '',
+  category: '',
+  internal_notes: '',
   is_in_stock: true
 })
 
@@ -80,11 +84,27 @@ const handleAddMedicine = async () => {
   
   try {
     await store.addMedicine(newMedicine.value)
-    newMedicine.value = { name: '', location: '', is_in_stock: true }
+    newMedicine.value = { 
+      name: '', 
+      location: '', 
+      stock_quantity: 0,
+      expiry_date: '',
+      category: '',
+      internal_notes: '',
+      is_in_stock: true 
+    }
     showAddModal.value = false
   } catch (e) {
     alert('저장 실패: ' + (e as any).message)
   }
+}
+const isExpiringSoon = (date: string | null) => {
+  if (!date) return false
+  const expiry = new Date(date)
+  const today = new Date()
+  const threeMonthsFromNow = new Date()
+  threeMonthsFromNow.setMonth(today.getMonth() + 3)
+  return expiry <= threeMonthsFromNow
 }
 </script>
 
@@ -177,8 +197,26 @@ const handleAddMedicine = async () => {
           <input v-model="newMedicine.name" type="text" class="input-field" placeholder="예: 타이레놀">
         </div>
         <div class="form-group">
-          <label>위치</label>
-          <input v-model="newMedicine.location" type="text" class="input-field" placeholder="예: A-1 선반">
+          <label>카테고리</label>
+          <input v-model="newMedicine.category" type="text" class="input-field" placeholder="예: 해열제, 영양제">
+        </div>
+        <div class="form-group-grid">
+          <div class="form-group">
+            <label>위치</label>
+            <input v-model="newMedicine.location" type="text" class="input-field" placeholder="예: A-1 선반">
+          </div>
+          <div class="form-group">
+            <label>재고 수량</label>
+            <input v-model.number="newMedicine.stock_quantity" type="number" class="input-field" placeholder="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>유효기간</label>
+          <input v-model="newMedicine.expiry_date" type="date" class="input-field">
+        </div>
+        <div class="form-group">
+          <label>직원용 메모</label>
+          <textarea v-model="newMedicine.internal_notes" class="input-field textarea" placeholder="진열 위치 팁이나 주의사항을 적어주세요"></textarea>
         </div>
         <div class="form-group-row">
           <label>재고 상태</label>
@@ -200,16 +238,37 @@ const handleAddMedicine = async () => {
         <div v-else-if="filteredMedicines.length === 0" class="empty-state">
           결과가 없습니다.
         </div>
-        <div v-for="med in filteredMedicines" :key="med.id" class="med-card glass">
-          <div class="med-info">
-            <h3>{{ med.name }}</h3>
-            <span :class="['stock-badge', med.is_in_stock ? 'in-stock' : 'out-of-stock']">
-              {{ med.is_in_stock ? '재고 있음' : '재고 없음' }}
-            </span>
+        <div v-for="med in filteredMedicines" :key="med.id" class="med-card glass" :class="{ 'expiry-warning': isExpiringSoon(med.expiry_date) }">
+          <div class="med-main-info">
+            <div class="med-info">
+              <div class="med-header">
+                <h3>{{ med.name }}</h3>
+                <span v-if="med.category" class="category-badge">{{ med.category }}</span>
+              </div>
+              <div class="med-status-row">
+                <span :class="['stock-badge', med.is_in_stock ? 'in-stock' : 'out-of-stock']">
+                  {{ med.is_in_stock ? '재고 있음' : '재고 없음' }}
+                </span>
+                <span v-if="med.stock_quantity !== undefined" class="quantity-text">
+                  (수량: {{ med.stock_quantity }})
+                </span>
+              </div>
+            </div>
+            <div class="med-location">
+              <MapPin :size="16" />
+              <span>{{ med.location }}</span>
+            </div>
           </div>
-          <div class="med-location">
-            <MapPin :size="16" />
-            <span>{{ med.location }}</span>
+          
+          <div v-if="med.expiry_date || med.internal_notes" class="med-extra-info">
+            <div v-if="med.expiry_date" class="expiry-info">
+              <span>📅 유효기간: {{ med.expiry_date }}</span>
+              <span v-if="isExpiringSoon(med.expiry_date)" class="warning-text">! 폐기 임박</span>
+            </div>
+            <div v-if="med.internal_notes" class="notes-info">
+              <Plus :size="14" :style="{ transform: 'rotate(45deg)' }" />
+              <p>{{ med.internal_notes }}</p>
+            </div>
           </div>
         </div>
       </section>

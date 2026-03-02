@@ -5,6 +5,10 @@ export interface Medicine {
     id: string
     name: string
     location: string
+    stock_quantity: number
+    expiry_date: string | null
+    category: string | null
+    internal_notes: string | null
     is_in_stock: boolean
     created_at: string
 }
