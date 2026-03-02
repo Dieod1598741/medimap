@@ -82,7 +82,7 @@ const suggestions = computed(() => {
       if (!aStarts && bStarts) return 1
       return a.localeCompare(b, 'ko')
     })
-    .slice(0, 5)
+    .slice(0, 20)
 })
 
 const selectSuggestion = (name: string) => {
@@ -612,7 +612,27 @@ const searchImage = (name: string) => {
   right: 0;
   padding: 8px 0;
   list-style: none;
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 250px;
+  z-index: 1000;
+}
+
+/* Scrollbar styling for suggestions */
+.suggestions-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .suggestion-item {
