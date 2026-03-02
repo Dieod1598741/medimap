@@ -23,18 +23,31 @@ export const useMedicineStore = defineStore('medicine', {
     actions: {
         async fetchMedicines() {
             this.loading = true
-            const { data, error } = await supabase
-                .from('medicines')
-                .select('*')
-                .order('name', { ascending: true })
-                .limit(5000)
+            let allData: Medicine[] = []
+            let from = 0
+            const batchSize = 1000
 
-            if (error) {
-                this.error = error.message
-            } else {
-                this.medicines = data as Medicine[]
+            try {
+                while (true) {
+                    const { data, error } = await supabase
+                        .from('medicines')
+                        .select('*')
+                        .order('name', { ascending: true })
+                        .range(from, from + batchSize - 1)
+
+                    if (error) throw error
+                    if (!data || data.length === 0) break
+
+                    allData = [...allData, ...(data as Medicine[])]
+                    if (data.length < batchSize) break
+                    from += batchSize
+                }
+                this.medicines = allData
+            } catch (e: any) {
+                this.error = e.message
+            } finally {
+                this.loading = false
             }
-            this.loading = false
         },
         async addMedicine(medicine: Omit<Medicine, 'id' | 'created_at'>) {
             const { data, error } = await supabase

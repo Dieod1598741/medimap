@@ -343,6 +343,9 @@ const searchImage = (name: string) => {
 
     <footer class="main-footer">
       <p>&copy; 2026 Medimap Medikingdom Yongsan. All rights reserved.</p>
+      <p class="count-indicator" v-if="store.medicines.length > 0">
+        전체 약품 데이터: {{ store.medicines.length.toLocaleString() }}개 로드됨
+      </p>
     </footer>
 
     <!-- Map Zoom Modal -->
