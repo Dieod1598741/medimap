@@ -586,6 +586,93 @@ const isExpiringSoon = (date: string | null) => {
   font-size: 0.9rem;
 }
 
+.form-group-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.input-field.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.category-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.med-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.med-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.quantity-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.med-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.med-extra-info {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.expiry-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.warning-text {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 0.75rem;
+  background: rgba(239, 44, 44, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.notes-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.med-card.expiry-warning {
+  border: 1px solid rgba(239, 44, 44, 0.3);
+}
+
 .add-section, .login-modal {
   padding: 30px;
   display: flex;
