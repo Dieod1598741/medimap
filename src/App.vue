@@ -108,10 +108,11 @@ const filteredMedicines = computed(() => {
   
   return store.medicines.filter(m => {
     const name = m.name.toLowerCase().replace(/\s/g, '')
+    const ingredients = (m.ingredients || '').toLowerCase().replace(/\s/g, '')
     if (isChoseungQuery) {
-      return getChoseung(name).includes(query)
+      return getChoseung(name).includes(query) || getChoseung(ingredients).includes(query)
     } else {
-      return name.includes(query)
+      return name.includes(query) || ingredients.includes(query)
     }
   })
 })
@@ -326,6 +327,9 @@ const searchImage = (name: string) => {
               <div class="med-header">
                 <h3>{{ med.name }}</h3>
                 <span v-if="med.category" class="category-badge">{{ med.category }}</span>
+              </div>
+              <div v-if="med.ingredients" class="med-ingredients">
+                <span class="ingredient-label">성분:</span> {{ med.ingredients }}
               </div>
               <div class="med-status-row">
                 <span :class="['stock-badge', med.is_in_stock ? 'in-stock' : 'out-of-stock']">
@@ -793,6 +797,23 @@ const searchImage = (name: string) => {
   justify-content: space-between;
   align-items: flex-start;
   width: 100%;
+}
+
+.med-ingredients {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ingredient-label {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.75rem;
 }
 
 .med-extra-info {

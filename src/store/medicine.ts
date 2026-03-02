@@ -11,6 +11,9 @@ export interface Medicine {
     internal_notes: string | null
     is_in_stock: boolean
     image_url?: string | null
+    barcode?: string | null
+    vendor?: string | null
+    ingredients?: string | null
     created_at: string
 }
 
