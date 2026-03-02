@@ -57,17 +57,31 @@ const getChoseung = (str: string) => {
 
 const suggestions = computed(() => {
   if (!searchQuery.value) return []
-  const query = searchQuery.value.toLowerCase().replace(/\s/g, '')
+  const originalQuery = searchQuery.value.trim()
+  const query = originalQuery.toLowerCase().replace(/\s/g, '')
   const queryChoseung = getChoseung(query)
+  const isChoseungQuery = /^[ㄱ-ㅎ]+$/.test(query)
   
   return store.medicines
     .filter(m => {
       const name = m.name.toLowerCase().replace(/\s/g, '')
       const nameChoseung = getChoseung(name)
-      return name.includes(query) || nameChoseung.includes(queryChoseung)
+      if (isChoseungQuery) {
+        return nameChoseung.includes(query)
+      } else {
+        return name.includes(query)
+      }
     })
     .map(m => m.name)
     .filter((name, index, self) => self.indexOf(name) === index)
+    .sort((a, b) => {
+      // Prioritize names that START with the query
+      const aStarts = a.toLowerCase().startsWith(originalQuery.toLowerCase())
+      const bStarts = b.toLowerCase().startsWith(originalQuery.toLowerCase())
+      if (aStarts && !bStarts) return -1
+      if (!aStarts && bStarts) return 1
+      return a.localeCompare(b, 'ko')
+    })
     .slice(0, 5)
 })
 
@@ -90,12 +104,15 @@ onMounted(() => {
 const filteredMedicines = computed(() => {
   if (!searchQuery.value) return store.medicines
   const query = searchQuery.value.toLowerCase().replace(/\s/g, '')
-  const queryChoseung = getChoseung(query)
+  const isChoseungQuery = /^[ㄱ-ㅎ]+$/.test(query)
   
   return store.medicines.filter(m => {
     const name = m.name.toLowerCase().replace(/\s/g, '')
-    const nameChoseung = getChoseung(name)
-    return name.includes(query) || nameChoseung.includes(queryChoseung)
+    if (isChoseungQuery) {
+      return getChoseung(name).includes(query)
+    } else {
+      return name.includes(query)
+    }
   })
 })
 
