@@ -21,7 +21,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
+    "dotenv": "^17.3.1",
     "lucide-vue-next": "^0.575.0",
+    "node-fetch": "^2.7.0",
     "pinia": "^3.0.4"
   }
 }

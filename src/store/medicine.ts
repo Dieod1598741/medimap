@@ -42,6 +42,19 @@ export const useMedicineStore = defineStore('medicine', {
 
             if (error) throw error
             if (data) this.medicines.push(data[0] as Medicine)
+        },
+        async updateMedicine(id: string, updates: Partial<Medicine>) {
+            const { data, error } = await supabase
+                .from('medicines')
+                .update(updates)
+                .eq('id', id)
+                .select()
+
+            if (error) throw error
+            if (data) {
+                const index = this.medicines.findIndex(m => m.id === id)
+                if (index !== -1) this.medicines[index] = data[0] as Medicine
+            }
         }
     }
 })

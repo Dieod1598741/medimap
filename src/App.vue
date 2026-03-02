@@ -22,6 +22,18 @@ const newMedicine = ref({
   is_in_stock: true
 })
 
+const showEditModal = ref(false)
+const editingMedicine = ref<any>(null)
+const editForm = ref({
+  name: '',
+  location: '',
+  stock_quantity: 0,
+  expiry_date: '',
+  category: '',
+  internal_notes: '',
+  is_in_stock: true
+})
+
 const showSuggestions = ref(false)
 
 const suggestions = computed(() => {
@@ -96,6 +108,31 @@ const handleAddMedicine = async () => {
     showAddModal.value = false
   } catch (e) {
     alert('저장 실패: ' + (e as any).message)
+  }
+}
+
+const startEdit = (med: any) => {
+  editingMedicine.value = med
+  editForm.value = { 
+    name: med.name,
+    location: med.location,
+    stock_quantity: med.stock_quantity || 0,
+    expiry_date: med.expiry_date || '',
+    category: med.category || '',
+    internal_notes: med.internal_notes || '',
+    is_in_stock: med.is_in_stock 
+  }
+  showEditModal.value = true
+}
+
+const handleUpdateMedicine = async () => {
+  if (!editingMedicine.value) return
+  try {
+    await store.updateMedicine(editingMedicine.value.id, editForm.value)
+    showEditModal.value = false
+    editingMedicine.value = null
+  } catch (e) {
+    alert('수정 실패: ' + (e as any).message)
   }
 }
 const isExpiringSoon = (date: string | null) => {
@@ -257,6 +294,9 @@ const isExpiringSoon = (date: string | null) => {
             <div class="med-location">
               <MapPin :size="16" />
               <span>{{ med.location }}</span>
+              <button v-if="isAdmin" class="btn-edit-small" @click.stop="startEdit(med)">
+                수정
+              </button>
             </div>
           </div>
           
@@ -286,6 +326,58 @@ const isExpiringSoon = (date: string | null) => {
           <button class="close-zoom" @click="toggleMapZoom">
             <Plus :style="{ transform: 'rotate(45deg)' }" :size="32" />
           </button>
+        </div>
+      </div>
+    </transition>
+    <!-- Edit Medicine Modal -->
+    <transition name="fade">
+      <div v-if="showEditModal" class="modal-overlay" @click="showEditModal = false">
+        <div class="add-section glass" @click.stop>
+          <div class="modal-header">
+            <h2>기존 약품 정보 수정</h2>
+            <button class="close-btn" @click="showEditModal = false">
+              <Plus :style="{ transform: 'rotate(45deg)' }" :size="24" />
+            </button>
+          </div>
+          <div class="form-group">
+            <label>약품 이름</label>
+            <input v-model="editForm.name" type="text" class="input-field" placeholder="예: 타이레놀">
+          </div>
+          <div class="form-group">
+            <label>카테고리</label>
+            <input v-model="editForm.category" type="text" class="input-field" placeholder="예: 해열제, 영양제">
+          </div>
+          <div class="form-group-grid">
+            <div class="form-group">
+              <label>위치</label>
+              <input v-model="editForm.location" type="text" class="input-field" placeholder="예: A-1 선반">
+            </div>
+            <div class="form-group">
+              <label>재고 수량</label>
+              <input v-model.number="editForm.stock_quantity" type="number" class="input-field" placeholder="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>유효기간</label>
+            <input v-model="editForm.expiry_date" type="date" class="input-field">
+          </div>
+          <div class="form-group">
+            <label>직원용 메모</label>
+            <textarea v-model="editForm.internal_notes" class="input-field textarea" placeholder="진열 위치 팁이나 주의사항을 적어주세요"></textarea>
+          </div>
+          <div class="form-group-row">
+            <label>재고 상태</label>
+            <button 
+              @click="editForm.is_in_stock = !editForm.is_in_stock"
+              :class="['toggle-btn', editForm.is_in_stock ? 'in-stock' : 'out-of-stock']"
+            >
+              {{ editForm.is_in_stock ? '재고 있음' : '재고 없음' }}
+            </button>
+          </div>
+          <div class="form-actions">
+            <button @click="showEditModal = false" class="btn-secondary">취소</button>
+            <button @click="handleUpdateMedicine" class="btn-primary">수정 완료</button>
+          </div>
         </div>
       </div>
     </transition>
@@ -678,8 +770,28 @@ const isExpiringSoon = (date: string | null) => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 500px;
+  border-radius: var(--radius);
+  animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.btn-edit-small {
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-edit-small:hover {
+  background: var(--primary-dark);
 }
 
 .form-group {
