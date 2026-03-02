@@ -16,7 +16,7 @@ const newMedicine = ref({
   name: '',
   location: '',
   stock_quantity: 0,
-  expiry_date: '',
+  expiry_date: null as string | null,
   category: '',
   internal_notes: '',
   is_in_stock: true
@@ -28,7 +28,7 @@ const editForm = ref({
   name: '',
   location: '',
   stock_quantity: 0,
-  expiry_date: '',
+  expiry_date: null as string | null,
   category: '',
   internal_notes: '',
   is_in_stock: true
@@ -100,7 +100,7 @@ const handleAddMedicine = async () => {
       name: '', 
       location: '', 
       stock_quantity: 0,
-      expiry_date: '',
+      expiry_date: null,
       category: '',
       internal_notes: '',
       is_in_stock: true 
@@ -117,7 +117,7 @@ const startEdit = (med: any) => {
     name: med.name,
     location: med.location,
     stock_quantity: med.stock_quantity || 0,
-    expiry_date: med.expiry_date || '',
+    expiry_date: med.expiry_date || null,
     category: med.category || '',
     internal_notes: med.internal_notes || '',
     is_in_stock: med.is_in_stock 
@@ -135,13 +135,9 @@ const handleUpdateMedicine = async () => {
     alert('수정 실패: ' + (e as any).message)
   }
 }
-const isExpiringSoon = (date: string | null) => {
-  if (!date) return false
-  const expiry = new Date(date)
-  const today = new Date()
-  const threeMonthsFromNow = new Date()
-  threeMonthsFromNow.setMonth(today.getMonth() + 3)
-  return expiry <= threeMonthsFromNow
+const searchImage = (name: string) => {
+  const query = encodeURIComponent(name)
+  window.open(`https://www.google.com/search?q=${query}&tbm=isch`, '_blank')
 }
 </script>
 
@@ -248,10 +244,6 @@ const isExpiringSoon = (date: string | null) => {
           </div>
         </div>
         <div class="form-group">
-          <label>유효기간</label>
-          <input v-model="newMedicine.expiry_date" type="date" class="input-field">
-        </div>
-        <div class="form-group">
           <label>직원용 메모</label>
           <textarea v-model="newMedicine.internal_notes" class="input-field textarea" placeholder="진열 위치 팁이나 주의사항을 적어주세요"></textarea>
         </div>
@@ -275,7 +267,7 @@ const isExpiringSoon = (date: string | null) => {
         <div v-else-if="filteredMedicines.length === 0" class="empty-state">
           결과가 없습니다.
         </div>
-        <div v-for="med in filteredMedicines" :key="med.id" class="med-card glass" :class="{ 'expiry-warning': isExpiringSoon(med.expiry_date) }">
+        <div v-for="med in filteredMedicines" :key="med.id" class="med-card glass" :class="{ 'stock-warn': med.stock_quantity === 0 }">
           <div class="med-main-info">
             <div class="med-info">
               <div class="med-header">
@@ -286,9 +278,12 @@ const isExpiringSoon = (date: string | null) => {
                 <span :class="['stock-badge', med.is_in_stock ? 'in-stock' : 'out-of-stock']">
                   {{ med.is_in_stock ? '재고 있음' : '재고 없음' }}
                 </span>
-                <span v-if="med.stock_quantity !== undefined" class="quantity-text">
+                <span v-if="med.stock_quantity !== undefined" class="quantity-text" :class="{ 'warning-text-simple': med.stock_quantity === 0 }">
                   (수량: {{ med.stock_quantity }})
                 </span>
+                <button class="btn-image-search" @click.stop="searchImage(med.name)">
+                  <Plus :size="12" /> 사진 찾기
+                </button>
               </div>
             </div>
             <div class="med-location">
@@ -300,12 +295,8 @@ const isExpiringSoon = (date: string | null) => {
             </div>
           </div>
           
-          <div v-if="med.expiry_date || med.internal_notes" class="med-extra-info">
-            <div v-if="med.expiry_date" class="expiry-info">
-              <span>📅 유효기간: {{ med.expiry_date }}</span>
-              <span v-if="isExpiringSoon(med.expiry_date)" class="warning-text">! 폐기 임박</span>
-            </div>
-            <div v-if="med.internal_notes" class="notes-info">
+          <div v-if="med.internal_notes" class="med-extra-info">
+            <div class="notes-info">
               <Plus :size="14" :style="{ transform: 'rotate(45deg)' }" />
               <p>{{ med.internal_notes }}</p>
             </div>
@@ -356,10 +347,6 @@ const isExpiringSoon = (date: string | null) => {
               <label>재고 수량</label>
               <input v-model.number="editForm.stock_quantity" type="number" class="input-field" placeholder="0">
             </div>
-          </div>
-          <div class="form-group">
-            <label>유효기간</label>
-            <input v-model="editForm.expiry_date" type="date" class="input-field">
           </div>
           <div class="form-group">
             <label>직원용 메모</label>
@@ -761,8 +748,33 @@ const isExpiringSoon = (date: string | null) => {
   border-radius: 8px;
 }
 
-.med-card.expiry-warning {
-  border: 1px solid rgba(239, 44, 44, 0.3);
+.btn-image-search {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-image-search:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.med-card.stock-warn {
+  border: 1px solid rgba(239, 44, 44, 0.2);
+}
+
+.warning-text-simple {
+  color: #ef4444;
+  font-weight: 700;
 }
 
 .add-section, .login-modal {
