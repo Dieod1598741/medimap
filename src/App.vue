@@ -38,13 +38,37 @@ const editForm = ref({
 
 const showSuggestions = ref(false)
 
+const getChoseung = (str: string) => {
+  const choseung = [
+    'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 
+    'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+  ]
+  let result = ''
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i) - 44032
+    if (code > -1 && code < 11172) {
+      result += choseung[Math.floor(code / 588)]
+    } else {
+      result += str.charAt(i)
+    }
+  }
+  return result
+}
+
 const suggestions = computed(() => {
   if (!searchQuery.value) return []
+  const query = searchQuery.value.toLowerCase().replace(/\s/g, '')
+  const queryChoseung = getChoseung(query)
+  
   return store.medicines
-    .filter(m => m.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    .filter(m => {
+      const name = m.name.toLowerCase().replace(/\s/g, '')
+      const nameChoseung = getChoseung(name)
+      return name.includes(query) || nameChoseung.includes(queryChoseung)
+    })
     .map(m => m.name)
-    .filter((name, index, self) => self.indexOf(name) === index) // Unique names
-    .slice(0, 5) // Limit to 5 suggestions
+    .filter((name, index, self) => self.indexOf(name) === index)
+    .slice(0, 5)
 })
 
 const selectSuggestion = (name: string) => {
@@ -65,9 +89,14 @@ onMounted(() => {
 
 const filteredMedicines = computed(() => {
   if (!searchQuery.value) return store.medicines
-  return store.medicines.filter(m => 
-    m.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  const query = searchQuery.value.toLowerCase().replace(/\s/g, '')
+  const queryChoseung = getChoseung(query)
+  
+  return store.medicines.filter(m => {
+    const name = m.name.toLowerCase().replace(/\s/g, '')
+    const nameChoseung = getChoseung(name)
+    return name.includes(query) || nameChoseung.includes(queryChoseung)
+  })
 })
 
 const toggleAdmin = () => {

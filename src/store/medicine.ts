@@ -27,6 +27,7 @@ export const useMedicineStore = defineStore('medicine', {
                 .from('medicines')
                 .select('*')
                 .order('name', { ascending: true })
+                .limit(5000)
 
             if (error) {
                 this.error = error.message
