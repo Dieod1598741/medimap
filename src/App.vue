@@ -19,6 +19,7 @@ const newMedicine = ref({
   expiry_date: null as string | null,
   category: '',
   internal_notes: '',
+  image_url: '',
   is_in_stock: true
 })
 
@@ -31,6 +32,7 @@ const editForm = ref({
   expiry_date: null as string | null,
   category: '',
   internal_notes: '',
+  image_url: '',
   is_in_stock: true
 })
 
@@ -103,6 +105,7 @@ const handleAddMedicine = async () => {
       expiry_date: null,
       category: '',
       internal_notes: '',
+      image_url: '',
       is_in_stock: true 
     }
     showAddModal.value = false
@@ -120,6 +123,7 @@ const startEdit = (med: any) => {
     expiry_date: med.expiry_date || null,
     category: med.category || '',
     internal_notes: med.internal_notes || '',
+    image_url: med.image_url || '',
     is_in_stock: med.is_in_stock 
   }
   showEditModal.value = true
@@ -268,6 +272,9 @@ const searchImage = (name: string) => {
           결과가 없습니다.
         </div>
         <div v-for="med in filteredMedicines" :key="med.id" class="med-card glass" :class="{ 'stock-warn': med.stock_quantity === 0 }">
+          <div v-if="med.image_url" class="med-image-container">
+            <img :src="med.image_url" :alt="med.name" class="med-image" />
+          </div>
           <div class="med-main-info">
             <div class="med-info">
               <div class="med-header">
@@ -346,6 +353,15 @@ const searchImage = (name: string) => {
             <div class="form-group">
               <label>재고 수량</label>
               <input v-model.number="editForm.stock_quantity" type="number" class="input-field" placeholder="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>약품 이미지 URL</label>
+            <div class="image-input-row">
+              <input v-model="editForm.image_url" type="text" class="input-field" placeholder="https://...">
+              <button class="btn-image-search" @click.stop="searchImage(editForm.name)">
+                사진 찾기
+              </button>
             </div>
           </div>
           <div class="form-group">
@@ -770,6 +786,33 @@ const searchImage = (name: string) => {
 
 .med-card.stock-warn {
   border: 1px solid rgba(239, 44, 44, 0.2);
+}
+
+.med-image-container {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 15px;
+  border: 1px solid var(--glass-border);
+}
+
+.med-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.med-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
 .warning-text-simple {

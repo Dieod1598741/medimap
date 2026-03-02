@@ -10,6 +10,7 @@ export interface Medicine {
     category: string | null
     internal_notes: string | null
     is_in_stock: boolean
+    image_url?: string | null
     created_at: string
 }
 
